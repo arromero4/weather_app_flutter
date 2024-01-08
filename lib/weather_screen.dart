@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'dart:ui';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app/additional_info_item.dart';
+import 'package:weather_app/api.dart';
 import 'package:weather_app/hourly_forecast_item.dart';
-import 'package:http/http.dart' as http;
-import 'package:weather_app/secrets.dart';
 
 class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
@@ -17,22 +16,6 @@ class WeatherScreen extends StatefulWidget {
 
 class _WeatherScreenState extends State<WeatherScreen> {
   late Future<Map<String, dynamic>> weather;
-  Future<Map<String, dynamic>> getCurrentWeather() async {
-    try {
-      String cityName = 'Mexico+city';
-      final res = await http.get(
-        Uri.parse(
-            'https://api.openweathermap.org/data/2.5/forecast?q=$cityName&units=metric&APPID=$openWeatherAPIKey'),
-      );
-      final data = jsonDecode(res.body);
-      if (data['cod'] != '200') {
-        throw 'An unexpected error occurred';
-      }
-      return data;
-    } catch (e) {
-      throw e.toString();
-    }
-  }
 
   @override
   void initState() {
@@ -52,6 +35,17 @@ class _WeatherScreenState extends State<WeatherScreen> {
         ),
         centerTitle: true,
         actions: [
+          Switch(
+            activeColor: Colors.grey,
+            value: AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark,
+            onChanged: (bool value) {
+              if (value) {
+                AdaptiveTheme.of(context).setDark();
+              } else {
+                AdaptiveTheme.of(context).setLight();
+              }
+            },
+          ),
           IconButton(
             onPressed: () {
               setState(() {
